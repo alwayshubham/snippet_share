@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'app',
     'social_django',
     'crispy_forms',
-    'crispy_bootstrap5'
+    'crispy_bootstrap5',
+    'snippets',
 ]
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -101,7 +102,7 @@ AUTHENTICATION_BACKENDS = [
     "social_core.backends.github.GithubOAuth2",  # github register
 ]
 
-AUTH_USER_MODEL = 'users.User'
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 

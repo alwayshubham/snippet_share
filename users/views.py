@@ -1,43 +1,74 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from django.urls import reverse
-from .forms import ClientSignUpForm,LawyerSignUpForm
 from django.contrib import messages
 from django.views.generic import CreateView
-from .models import User
+from .models import Profile
+from .forms import ProfileForm
+from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
 @login_required
 def dashboard(request):
+    # if profile not created, redirect to create profile page
+    if not Profile.objects.filter(user=request.user).exists():
+        return redirect(reverse('create_profile'))
     return render(request, 'users/dashboard.html')
 
+
 def register(request):
-        return render(request, 'registration/register.html')
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            # save the user
+            user = form.save()
+            # log the user in
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(request, 'Registration successful.')
+            # if profile not created, redirect to create profile page
+            if not Profile.objects.filter(user=user).exists():
+                return redirect(reverse('create_profile'))
+            else:
+                return redirect(reverse('dashboard'))
+        else:
+            messages.error(request, 'Unsuccessful registration. Invalid information.')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
 
-class ClientSignUpView(CreateView):
-    model = User
-    form_class = ClientSignUpForm
-    template_name = 'registration/signup_form.html'
 
-    def get_context_data(self, **kwargs):
-        kwargs['user_type'] = 'client'
-        return super().get_context_data(**kwargs)
+@login_required
+def create_profile(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # save the user
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, 'Profile created successfully.')
+            return redirect(reverse('dashboard'))
+        else:
+            messages.error(request, 'Unsuccessful profile creation. Invalid information.')
+    else:
+        form = ProfileForm()
+    return render(request, 'users/create_profile.html', {'form': form})
 
-    def form_valid(self, form):
-        user = form.save()
-        return redirect('home')
-
-class LawyerSignUpView(CreateView):
-    model = User
-    form_class = LawyerSignUpForm
-    template_name = 'registration/signup_form.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['user_type'] = 'lawyer'
-        return super().get_context_data(**kwargs)
-
-    def form_valid(self, form):
-        user = form.save()
-        return redirect('home')
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            # save the user
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect(reverse('dashboard'))
+        else:
+            messages.error(request, 'Unsuccessful profile update. Invalid information.')
+    else:
+        form = ProfileForm(instance=request.user.profile)
+    return render(request, 'users/update_profile.html', {'form': form})
