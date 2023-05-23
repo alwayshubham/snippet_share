@@ -34,3 +34,7 @@ class Snippet(models.Model):
     def __str__(self):
         return self.title
     
+    # strip code of all whitespace when saving
+    def save(self, *args, **kwargs):
+        self.code = self.code.strip()
+        super(Snippet, self).save(*args, **kwargs)

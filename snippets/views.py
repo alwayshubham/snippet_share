@@ -50,7 +50,9 @@ def search(request):
     context = {
         'snippets': snippets,
         'languages': languages,
-        'frameworks': frameworks
+        'frameworks': frameworks,
+        'query': query,
+        'count': len(snippets),
     }
     return render(request, 'snippets/snippet_search.html', context)
     
