@@ -1,0 +1,148 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block css %}
+<style>
+    body {
+        height: 100vh;
+        background-image: url('http://satyr.io/1000x600/32?text=template');
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .wrapper {
+        background-color: rgb(216, 222, 228);
+    }
+
+    .sideimg {
+        background-image: url("{% static 'img/bg.jpg' %} ");
+        background-position: right;
+        height: 100vh;
+    }
+
+    #editor {
+        height: 600px;
+    }
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="container-fluid wrapper">
+    <div class="row">
+        <div class="col-12">
+            <div class="container">
+                <div class="row my-1">
+                    <div class="col text-center">
+                        Hello, <b>{{ user.username|default:'Guest' }} </b>
+                    </div>
+                </div>
+            </div>
+            <!-- search bar -->
+            <form action="{% url 'search' %}" method="GET">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="query" placeholder="Search for snippets"
+                        aria-label="Search for snippets" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row my-3">
+        <div class="col-md-6">
+            <h1 class="p-3 text-primary">{{snippet.title}}</h1>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <span class="badge badge-primary">{{snippet.language}}</span>
+                            <span class="badge badge-warning">{{snippet.framework}}</span>
+                            <span class="badge badge-dark">👁️{{snippet.views}}</span>
+                        </div>
+                        <div class="">
+                            <span class="badge badge-success">👍{{snippet.upvotes}}</span>
+                            <span class="badge badge-danger">👎{{snippet.downvotes}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">
+                        {{snippet.description|capfirst|linebreaksbr}}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col me-auto">
+                            {{snippet.created_on|timesince}} ago
+                        </div>
+                        <a href="{% url 'upvote' snippet.id %}" class="btn btn-success btn-sm px-3">Upvote</a> 
+                        <a href="{% url 'downvote' snippet.id %}" class="btn btn-danger btn-sm px-3">Downvote</a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-6">
+            <h1 class="p-3 text-primary">Code</h1>
+            <div class="card">
+                <div class="card-body">
+                    <div id="editor">
+                        {{snippet.code|safe}}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary btn-sm copy" data-toggle="tooltip" data-placement="bottom"
+                        title="Copy to clipboard">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.22.0/ace.min.js"
+    integrity="sha512-q6CTB0jS+VuJnSct82rVcWlI06LGzNjaG3CWenHWVUncRvc4UQMFkA3a5Ip880xr+lBx38FcHDclOxPdSg+sBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/dracula");
+    // increase font size
+    editor.setFontSize(18);
+    try {
+        editor.session.setMode("ace/mode/{{snippet.language|lower}}");
+    } catch (error) {
+        editor.session.setMode("ace/mode/text");
+    }
+    // format 
+    editor.session.setUseWrapMode(true);
+    // disable editing
+    editor.setReadOnly(true);
+    // remove error hints
+    editor.$blockScrolling = Infinity;
+    // copy to clipboard button 
+    $(function () {
+        $('.copy').tooltip({
+            trigger: 'click',
+            placement: 'bottom'
+        });
+        $('.copy').click(function () {
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val($('#editor').text()).select();
+            document.execCommand("copy");
+            $temp.remove();
+            $('.copy').attr('data-original-title', 'Copied').tooltip('show');
+        });
+        $('.copy').mouseout(function () {
+            $('.copy').attr('data-original-title', 'Copy to clipboard');
+        });
+    });
+</script>
+{% endblock js %}

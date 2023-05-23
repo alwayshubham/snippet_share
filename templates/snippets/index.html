@@ -1,0 +1,86 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block css %}
+<style>
+    body {
+        height: 100vh;
+        background-image: url('http://satyr.io/1000x600/32?text=template');
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .wrapper {
+        background-color: rgb(216, 222, 228);
+    }
+
+    .sideimg {
+        background-image: url("{% static 'img/bg.jpg' %} ");
+        background-position: right;
+        height: 100vh;
+    }
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="container-fluid wrapper">
+    <div class="row">
+        <div class="col-12">
+            <div class="container">
+                <div class="row my-5">
+                    <div class="col">
+                        Hello, <b>{{ user.username|default:'Guest' }} </b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row my-3">
+        <div class="col-md-8">
+            <h1 class="p-3 text-primary">Top Voted Snippets</h1>
+            {% for snip in snippets %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <span class="badge badge-primary">{{snip.language}}</span>
+                            <span class="badge badge-warning">{{snip.framework}}</span>
+                            <span class="badge badge-dark">👁️{{snip.views}}</span>
+                        </div>
+                        <div class="">
+                            <span class="badge badge-success">👍{{snip.upvotes}}</span>
+                            <span class="badge badge-danger">👎{{snip.downvotes}}</span>        
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title">{{snip.title}}</h1>
+                    <p class="card-text text-muted">
+                        {{snip.description|capfirst|truncatechars:350}}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col me-auto">
+                            {{snip.created_on|timesince}} ago
+                        </div>
+                        <div class="">
+                            <a href="{% url 'snippet_detail' snip.id %}" class="btn btn-primary btn-sm">View Snippet</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+
+            {% endfor %}
+
+        </div>
+        <div class="col-md-4">
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

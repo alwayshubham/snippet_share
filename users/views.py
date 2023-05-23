@@ -15,7 +15,20 @@ def dashboard(request):
     # if profile not created, redirect to create profile page
     if not Profile.objects.filter(user=request.user).exists():
         return redirect(reverse('create_profile'))
-    return render(request, 'users/dashboard.html')
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            # save the user
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect(reverse('dashboard'))
+        else:
+            messages.error(request, 'Unsuccessful profile update. Invalid information.')
+    form = ProfileForm(instance=request.user.profile)
+    profile = Profile.objects.get(user=request.user)
+    return render(request, 'users/dashboard.html', {'form': form, 'profile': profile})
 
 
 def register(request):

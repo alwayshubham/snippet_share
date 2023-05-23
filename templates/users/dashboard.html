@@ -1,24 +1,25 @@
 {% extends 'layout/base.html' %}
 {% load static %}
-
+{% load crispy_forms_tags %}
 
 {% block css %}
 <style>
-    body{
+    body {
         height: 100vh;
         background-image: url('http://satyr.io/1000x600/32?text=template');
         background-size: cover;
         background-repeat: no-repeat;
     }
-    .wrapper{
-        background-color: rgb(216, 222, 228); 
+
+    .wrapper {
+        background-color: rgb(216, 222, 228);
     }
-    .sideimg{
+
+    .sideimg {
         background-image: url("{% static 'img/bg.jpg' %} ");
         background-position: right;
         height: 100vh;
     }
-    
 </style>
 {% endblock css %}
 
@@ -30,32 +31,54 @@
                 <div class="row my-5">
                     <div class="col">
                         Hello, <b>{{ user.username|default:'Guest' }} </b>
-                        
-                        
-                        
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col my-5">
+                            <div class="card mx-auto">
+                                <div class="card-body">
+
+                                    <img src="{{profile.image.url}}" class="img-fluid" alt="{{profile.image.url}}">
+                                    <h4 class="card-title">Your account</h4>
+                                    <p class="lead">{{profile.bio|linebreaksbr}}</p>
+                                    <p class="card-text">
+                                        <a href="{% url 'logout' %}"> Sign out </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col my-5">
+                            <div class="card mx-auto">
+                                <div class="card-body">
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        {{form|crispy}}
+                                        <button class="btn btn-primary btn-sm btn-block">Update Profile</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-4 sideimg">
-            <div class="container">
-                <div class="row">
-                    <div class="col my-5">
-                        <div class="card mx-auto">
-                            <div class="card-body">
-                                <h4 class="card-title">Something very cool</h4>
-                                <p class="card-text">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Distinctio hic veritatis delectus aliquid pariatur fugit obcaecati, rem ullam laboriosam ipsa nulla. Ea soluta ducimus odio numquam, quasi eveniet nihil maxime.</p>
-                            </div>
-                        </div>
-                        <div class="card mx-auto mt-3">
-                            <div class="card-body">
-                                <h4 class="card-title">Something very cool</h4>
-                                <p class="card-text">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Distinctio hic veritatis delectus aliquid pariatur fugit obcaecati, rem ullam laboriosam ipsa nulla. Ea soluta ducimus odio numquam, quasi eveniet nihil maxime.</p>
-                            </div>
-                        </div>
+        <div class="col-4 sideimg bg-secondary">
+            <div class="p-5 rounded-3">
+                <div class="container-fluid py-5">
+                    <div class="mb-2">
+                        <a class="btn btn-light btn-lg" href="{% url 'home' %}">Visit Code Snippet Home 👁️</a>
+
                     </div>
+                  <div class="mb-2">
+                    <a class="btn btn-light btn-lg" href="{% url 'snippet_list' %}">Search Code 🔍</a>
+                  </div>
                 </div>
-            </div>
+              </div>
         </div>
     </div>
 </div>
